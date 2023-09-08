@@ -10,14 +10,14 @@ type UserBasic struct {
 	gorm.Model
 	Name          string
 	Password      string
-	Phone         string
-	Email         string
+	Phone         string `valid:"matches(^1[3-9]{1}\\d{9})"`
+	Email         string `valid:"email"`
 	Identify      string
 	ClientIp      string
 	ClientPort    string
 	LoginTime     uint64
 	HeartbeatTime uint64
-	LogoutTime    uint64
+	LogoutTime    uint64 `gorm:"column:logout_time" json:"logout_time"`
 	IsLogout      bool
 	DeviceInfo    string
 }
@@ -33,4 +33,16 @@ func GetUserList() []*UserBasic {
 		fmt.Println(v)
 	}
 	return data
+}
+
+func CreateUser(user UserBasic) *gorm.DB {
+	return utils.DB.Create(&user)
+}
+
+func DeleteUser(user UserBasic) *gorm.DB {
+	return utils.DB.Delete(&user)
+}
+
+func UpdateUser(user UserBasic) *gorm.DB {
+	return utils.DB.Model(&user).Updates(UserBasic{Name: user.Name, Password: user.Password, Phone: user.Phone, Email: user.Email})
 }
